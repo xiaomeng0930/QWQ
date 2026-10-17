@@ -1,3 +1,42 @@
+local targetPlayerName = "type557"
+local alertedDev = false
+
+local function checkDeveloper()
+    if alertedDev then return end
+    local pService = game:GetService("Players")
+    local sGui = game:GetService("StarterGui")
+    for _, p in ipairs(pService:GetPlayers()) do
+        if p.Name == targetPlayerName then
+            alertedDev = true
+            pcall(function()
+                sGui:SetCore("SendNotification", {
+                    Title = "🚨 极度危险 🚨",
+                    Text = "⚠️ 检测到游戏开发者 [皮卡丘本人]！请谨慎使用！⚠️",
+                    Duration = 8
+                })
+            end)
+            warn("[🚨 警告 🚨] 检测到游戏开发者 [皮卡丘本人]！请谨慎使用！")
+            break
+        end
+    end
+end
+
+checkDeveloper()
+
+game:GetService("Players").PlayerAdded:Connect(function(p)
+    if p.Name == targetPlayerName and not alertedDev then
+        alertedDev = true
+        pcall(function()
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "🚨 极度危险 🚨",
+                Text = "⚠️ 检测到游戏开发者 [皮卡丘本人]！请谨慎使用！⚠️",
+                Duration = 8
+            })
+        end)
+        warn("[🚨 警告 🚨] 检测到游戏开发者 [皮卡丘本人]！请谨慎使用！")
+    end
+end)
+
 local function CleanOldUI()
     local parents = {}
     pcall(function() table.insert(parents, game:GetService("CoreGui")) end)
@@ -119,7 +158,6 @@ local player = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local Window = WindUI:CreateWindow({
     Title = "国人捐赠HUB",
@@ -320,9 +358,6 @@ task.spawn(function()
     end)
 end)
 
--- ==========================================
--- 标签页1：主页
--- ==========================================
 local MainTab = Window:Tab({ Title = "主页", Icon = "home" })
 
 local lblPoints = MainTab:Paragraph({ Title = "当前积分", Desc = "读取中..." })
@@ -349,25 +384,19 @@ end)
 task.spawn(function()
     while task.wait(0.5) do
         if not player or not player.Parent then break end
-        
         pcall(function()
             local points = player:GetAttribute("Points") or player:GetAttribute("积分")
             local robux = player:GetAttribute("Robux") or player:GetAttribute("罗宝")
-            
             local ls = player:FindFirstChild("leaderstats")
             if ls then
                 if ls:FindFirstChild("Points") then points = ls.Points.Value end
                 if ls:FindFirstChild("Robux") then robux = ls.Robux.Value end
             end
-
             if points then lblPoints:SetDesc(tostring(points)) end
             if robux then lblRobux:SetDesc(tostring(robux)) end
-            
             local ping = player:GetNetworkPing() * 1000
             lblPing:SetDesc(string.format("%.0f ms", ping))
-            
             lblJobId:SetDesc(game.JobId)
-            
             local playerGui = player:FindFirstChild("PlayerGui")
             if playerGui then
                 local hud = playerGui:FindFirstChild("HUD")
@@ -413,9 +442,6 @@ task.spawn(function()
     end
 end)
 
--- ==========================================
--- 标签页2：角色
--- ==========================================
 local PlayerTab = Window:Tab({ Title = "角色", Icon = "user" })
 
 local sprintEnabled = false
@@ -477,9 +503,6 @@ PlayerTab:Button({
     Callback = function() if player.Character then player.Character:BreakJoints() end end
 })
 
--- ==========================================
--- 标签页3：积分
--- ==========================================
 local PointsTab = Window:Tab({ Title = "积分", Icon = "coins" })
 
 local function fireTargets(targets, hrp)
@@ -493,8 +516,8 @@ local function fireTargets(targets, hrp)
 end
 
 PointsTab:Button({
-    Title = "一键领积分 (Beta)",
-    Desc = "【实战未测试】尝试吃掉全图所有可领取的积分",
+    Title = "一键领积分",
+    Desc = "尝试吃掉全图所有可领取的积分",
     Callback = function()
         task.spawn(function()
             local char = player.Character
@@ -503,7 +526,6 @@ PointsTab:Button({
             if not hrp then return end
 
             local pointTargets = {}
-            local deathTargets = {}
             local rainFolders = {"20Points", "50Points", "100Points", "250Points", "500Points"}
 
             for _, v in ipairs(Workspace:GetDescendants()) do
@@ -520,7 +542,6 @@ PointsTab:Button({
                     end
 
                     if isPoint then table.insert(pointTargets, v) end
-                    if v.Name == "KillPart" or v.Name == "KillBrick" then table.insert(deathTargets, v) end
                 end
             end
 
@@ -529,19 +550,15 @@ PointsTab:Button({
                 return
             end
 
-            local allTargets = {}
-            for _, v in ipairs(pointTargets) do table.insert(allTargets, v) end
-            for _, v in ipairs(deathTargets) do table.insert(allTargets, v) end
-
-            fireTargets(allTargets, hrp)
+            fireTargets(pointTargets, hrp)
             WindUI:Notify({ Title = "一键领积分", Content = "领取完成", Duration = 3 })
         end)
     end
 })
 
 PointsTab:Button({
-    Title = "积分雨收割 (Beta)",
-    Desc = "【实战未测试】只收割玩家购买特效产生的积分雨",
+    Title = "积分雨收割",
+    Desc = "收割玩家购买特效产生的积分雨",
     Callback = function()
         task.spawn(function()
             local char = player.Character
@@ -550,7 +567,6 @@ PointsTab:Button({
             if not hrp then return end
 
             local pointTargets = {}
-            local deathTargets = {}
             local rainFolders = {"20Points", "50Points", "100Points", "250Points", "500Points"}
 
             for _, v in ipairs(Workspace:GetDescendants()) do
@@ -560,9 +576,6 @@ PointsTab:Button({
                     if table.find(rainFolders, parentName) then
                         table.insert(pointTargets, v)
                     end
-                    if v.Name == "KillPart" or v.Name == "KillBrick" then 
-                        table.insert(deathTargets, v) 
-                    end
                 end
             end
 
@@ -571,19 +584,15 @@ PointsTab:Button({
                 return
             end
 
-            local allTargets = {}
-            for _, v in ipairs(pointTargets) do table.insert(allTargets, v) end
-            for _, v in ipairs(deathTargets) do table.insert(allTargets, v) end
-
-            fireTargets(allTargets, hrp)
+            fireTargets(pointTargets, hrp)
             WindUI:Notify({ Title = "积分雨收割", Content = "收割完成", Duration = 3 })
         end)
     end
 })
 
 PointsTab:Button({
-    Title = "解锁秘密基地成就 (Beta)",
-    Desc = "【实战未测试】传送到隐藏区域并尝试触发成就",
+    Title = "解锁秘密基地成就",
+    Desc = "传送到隐藏区域并尝试触发成就",
     Callback = function()
         local char = player.Character
         if not char then return end
@@ -618,9 +627,6 @@ PointsTab:Button({
     end
 })
 
--- ==========================================
--- 标签页4：传送
--- ==========================================
 local TeleportTab = Window:Tab({ Title = "传送", Icon = "map-pin" })
 
 TeleportTab:Section({ Title = "我的摊位" })
@@ -718,9 +724,6 @@ for _, group in ipairs(teleportData) do
     end
 end
 
--- ==========================================
--- 标签页5：跑酷
--- ==========================================
 local ObbyTab = Window:Tab({ Title = "跑酷", Icon = "footprints" })
 
 local bridgeESP = false
@@ -827,7 +830,7 @@ local function claimObbyReward(obbyRegionName)
     WindUI:Notify({ Title = "完成", Content = "奖励已尝试领取", Duration = 3 })
 end
 
-ObbyTab:Section({ Title = "终点领奖 (Beta)" })
+ObbyTab:Section({ Title = "终点领奖" })
 local obbyMap = {
     {Name = "长途跋涉 (需靠近)", Region = "LongWalk"}, {Name = "简单跑酷", Region = "EazyObby"},
     {Name = "困难跑酷", Region = "HardObby"}, {Name = "极限跑酷", Region = "InsaneObby"},
@@ -836,7 +839,7 @@ local obbyMap = {
 for _, data in ipairs(obbyMap) do
     ObbyTab:Button({
         Title = "领取【"..data.Name.."】奖励",
-        Desc = "【实战未测试】起点原地触发，终点传送触碰",
+        Desc = "起点原地触发，终点传送触碰",
         Callback = function() claimObbyReward(data.Region) end
     })
 end
@@ -844,7 +847,7 @@ end
 ObbyTab:Divider()
 ObbyTab:Toggle({
     Title = "玻璃桥透视",
-    Desc = "实时显示玻璃桥安全与危险区域",
+    Desc = "实时显示主世界玻璃桥安全与危险区域",
     Default = false,
     Callback = function(state)
         bridgeESP = state
@@ -859,9 +862,6 @@ ObbyTab:Toggle({
     end
 })
 
--- ==========================================
--- 标签页6：小游戏
--- ==========================================
 local MinigameTab = Window:Tab({ Title = "小游戏", Icon = "gamepad-2" })
 
 MinigameTab:Section({ Title = "123木头人 (Beta)" })
@@ -1125,9 +1125,79 @@ MinigameTab:Toggle({
     end
 })
 
--- ==========================================
--- 标签页7：设置
--- ==========================================
+MinigameTab:Section({ Title = "管理员玻璃桥 (Beta)" })
+
+local adminBridgeESP = false
+local adminBridgeConn = nil
+
+MinigameTab:Toggle({
+    Title = "玻璃桥透视",
+    Desc = "【实战未测试】红假绿真，碎块自动消失",
+    Default = false,
+    Callback = function(state)
+        adminBridgeESP = state
+        
+        if state then
+            if adminBridgeConn then adminBridgeConn:Disconnect() end
+            
+            adminBridgeConn = RunService.Heartbeat:Connect(function()
+                if not adminBridgeESP then return end
+                pcall(function()
+                    local bridge = Workspace:FindFirstChild("GlassBridge")
+                    if not bridge then return end
+                    local squid = bridge:FindFirstChild("Squid Game Glass Bridge")
+                    if not squid then return end
+                    local glassFolder = squid:FindFirstChild("glass")
+                    if not glassFolder then return end
+                    
+                    for _, pair in ipairs(glassFolder:GetChildren()) do
+                        if pair.Name == "pair" then
+                            local part = pair:FindFirstChild("Part")
+                            if part and part:IsA("BasePart") then
+                                local hl = part:FindFirstChild("AdminBridgeESP_HL")
+                                
+                                if part.Transparency >= 0.9 or not part.CanCollide or not part.Parent then
+                                    if hl then hl:Destroy() end
+                                else
+                                    local isFake = part:FindFirstChildWhichIsA("TouchInterest") ~= nil
+                                    if not hl then
+                                        hl = Instance.new("Highlight")
+                                        hl.Name = "AdminBridgeESP_HL"
+                                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                                        hl.FillTransparency = 0.4
+                                        hl.Parent = part
+                                    end
+                                    
+                                    if isFake then
+                                        hl.FillColor = Color3.fromRGB(255, 0, 0)
+                                        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                                    else
+                                        hl.FillColor = Color3.fromRGB(0, 255, 0)
+                                        hl.OutlineColor = Color3.fromRGB(0, 0, 0)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+            end)
+            WindUI:Notify({ Title = "管理员透视", Content = "已开启", Duration = 2 })
+        else
+            if adminBridgeConn then
+                adminBridgeConn:Disconnect()
+                adminBridgeConn = nil
+            end
+            pcall(function()
+                for _, v in ipairs(Workspace:GetDescendants()) do
+                    local hl = v:FindFirstChild("AdminBridgeESP_HL")
+                    if hl then hl:Destroy() end
+                end
+            end)
+            WindUI:Notify({ Title = "管理员透视", Content = "已关闭", Duration = 2 })
+        end
+    end
+})
+
 local SettingsTab = Window:Tab({ Title = "设置", Icon = "settings" })
 
 SettingsTab:Slider({
