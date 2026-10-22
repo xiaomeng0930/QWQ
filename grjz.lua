@@ -1,42 +1,3 @@
-local targetPlayerName = "type557"
-local alertedDev = false
-
-local function checkDeveloper()
-    if alertedDev then return end
-    local pService = game:GetService("Players")
-    local sGui = game:GetService("StarterGui")
-    for _, p in ipairs(pService:GetPlayers()) do
-        if p.Name == targetPlayerName then
-            alertedDev = true
-            pcall(function()
-                sGui:SetCore("SendNotification", {
-                    Title = "🚨 极度危险 🚨",
-                    Text = "⚠️ 检测到游戏开发者 [皮卡丘本人]！请谨慎使用！⚠️",
-                    Duration = 8
-                })
-            end)
-            warn("[🚨 警告 🚨] 检测到游戏开发者 [皮卡丘本人]！请谨慎使用！")
-            break
-        end
-    end
-end
-
-checkDeveloper()
-
-game:GetService("Players").PlayerAdded:Connect(function(p)
-    if p.Name == targetPlayerName and not alertedDev then
-        alertedDev = true
-        pcall(function()
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "🚨 极度危险 🚨",
-                Text = "⚠️ 检测到游戏开发者 [皮卡丘本人]！请谨慎使用！⚠️",
-                Duration = 8
-            })
-        end)
-        warn("[🚨 警告 🚨] 检测到游戏开发者 [皮卡丘本人]！请谨慎使用！")
-    end
-end)
-
 local function CleanOldUI()
     local parents = {}
     pcall(function() table.insert(parents, game:GetService("CoreGui")) end)
@@ -360,12 +321,12 @@ end)
 
 local MainTab = Window:Tab({ Title = "主页", Icon = "home" })
 
-local lblPoints = MainTab:Paragraph({ Title = "当前积分", Desc = "读取中..." })
-local lblRobux = MainTab:Paragraph({ Title = "总取出 rubux", Desc = "读取中..." })
-local lblDaily = MainTab:Paragraph({ Title = "今日已取出", Desc = "读取中..." })
-local lblStatus = MainTab:Paragraph({ Title = "状态", Desc = "读取中..." })
-local lblPing = MainTab:Paragraph({ Title = "Ping", Desc = "读取中..." })
-local lblJobId = MainTab:Paragraph({ Title = "服务器 ID", Desc = "读取中..." })
+local lblPoints = MainTab:Paragraph({ Title = "当前积分" })
+local lblRobux = MainTab:Paragraph({ Title = "总取出 rubux" })
+local lblDaily = MainTab:Paragraph({ Title = "今日已取出" })
+local lblStatus = MainTab:Paragraph({ Title = "状态" })
+local lblPing = MainTab:Paragraph({ Title = "Ping" })
+local lblJobId = MainTab:Paragraph({ Title = "服务器 ID" })
 
 task.spawn(function()
     while not lblJobId or not lblJobId.UIElements or not lblJobId.UIElements.Main do task.wait(0.1) end
@@ -457,7 +418,6 @@ end)
 
 PlayerTab:Toggle({
     Title = "移动加速",
-    Desc = "增加跑步速度",
     Default = false,
     Callback = function(state)
         sprintEnabled = state
@@ -470,7 +430,6 @@ local noclipConnection = nil
 
 PlayerTab:Toggle({
     Title = "穿墙",
-    Desc = "无视墙壁碰撞",
     Default = false,
     Callback = function(state)
         noclipEnabled = state
@@ -499,7 +458,6 @@ PlayerTab:Toggle({
 
 PlayerTab:Button({
     Title = "重置角色",
-    Desc = "原地阵亡并重生",
     Callback = function() if player.Character then player.Character:BreakJoints() end end
 })
 
@@ -517,7 +475,6 @@ end
 
 PointsTab:Button({
     Title = "一键领积分",
-    Desc = "尝试吃掉全图所有可领取的积分",
     Callback = function()
         task.spawn(function()
             local char = player.Character
@@ -558,7 +515,6 @@ PointsTab:Button({
 
 PointsTab:Button({
     Title = "积分雨收割",
-    Desc = "收割玩家购买特效产生的积分雨",
     Callback = function()
         task.spawn(function()
             local char = player.Character
@@ -592,7 +548,6 @@ PointsTab:Button({
 
 PointsTab:Button({
     Title = "解锁秘密基地成就",
-    Desc = "传送到隐藏区域并尝试触发成就",
     Callback = function()
         local char = player.Character
         if not char then return end
@@ -632,7 +587,6 @@ local TeleportTab = Window:Tab({ Title = "传送", Icon = "map-pin" })
 TeleportTab:Section({ Title = "我的摊位" })
 TeleportTab:Button({
     Title = "传送到我的摊位",
-    Desc = "瞬间移动到自己的摊位前方",
     Callback = function()
         local char = player.Character
         if not char then return end
@@ -711,7 +665,6 @@ for _, group in ipairs(teleportData) do
     for _, place in ipairs(group.Places) do
         TeleportTab:Button({
             Title = "传送到 " .. place.Name,
-            Desc = "瞬间移动到该地点",
             Callback = function()
                 local char = player.Character
                 if not char then return end
@@ -814,10 +767,10 @@ local function claimObbyReward(obbyRegionName)
             if obj:IsA("BasePart") and string.find(obj.Name, "RewardPad") then targetPad = obj break end
         end
     end
-    if not targetPad then return WindUI:Notify({ Title = "提示", Content = "未找到终点版（可能太远了）", Duration = 3 }) end
+    if not targetPad then return WindUI:Notify({ Title = "提示", Content = "未找到终点版", Duration = 3 }) end
 
     local dist = (hrp.Position - targetPad.Position).Magnitude
-    if dist > 800 then return WindUI:Notify({ Title = "距离过远", Content = "未找到终点版（可能太远了）", Duration = 4 }) end
+    if dist > 800 then return WindUI:Notify({ Title = "距离过远", Content = "未找到终点版", Duration = 4 }) end
 
     hrp.CFrame = CFrame.new(targetPad.Position + Vector3.new(0, 3, 0))
     task.wait(0.3)
@@ -832,14 +785,13 @@ end
 
 ObbyTab:Section({ Title = "终点领奖" })
 local obbyMap = {
-    {Name = "长途跋涉 (需靠近)", Region = "LongWalk"}, {Name = "简单跑酷", Region = "EazyObby"},
+    {Name = "长途跋涉", Region = "LongWalk"}, {Name = "简单跑酷", Region = "EazyObby"},
     {Name = "困难跑酷", Region = "HardObby"}, {Name = "极限跑酷", Region = "InsaneObby"},
     {Name = "玻璃桥", Region = "GlassBridgeChallenge"},
 }
 for _, data in ipairs(obbyMap) do
     ObbyTab:Button({
-        Title = "领取【"..data.Name.."】奖励",
-        Desc = "起点原地触发，终点传送触碰",
+        Title = "领取"..data.Name.."奖励",
         Callback = function() claimObbyReward(data.Region) end
     })
 end
@@ -847,7 +799,6 @@ end
 ObbyTab:Divider()
 ObbyTab:Toggle({
     Title = "玻璃桥透视",
-    Desc = "实时显示主世界玻璃桥安全与危险区域",
     Default = false,
     Callback = function(state)
         bridgeESP = state
@@ -864,14 +815,13 @@ ObbyTab:Toggle({
 
 local MinigameTab = Window:Tab({ Title = "小游戏", Icon = "gamepad-2" })
 
-MinigameTab:Section({ Title = "123木头人 (Beta)" })
+MinigameTab:Section({ Title = "123木头人" })
 
 local redLightEnabled = false
 local redLightConnection = nil
 
 MinigameTab:Toggle({
     Title = "123木头人助手",
-    Desc = "【实战未测试】红灯秒停，绿灯恢复",
     Default = false,
     Callback = function(state)
         redLightEnabled = state
@@ -929,7 +879,7 @@ MinigameTab:Toggle({
                     end
                 end)
             end)
-            WindUI:Notify({ Title = "123木头人助手", Content = "已开启，推着摇杆即可！", Duration = 3 })
+            WindUI:Notify({ Title = "123木头人助手", Content = "已开启", Duration = 3 })
         else
             if redLightConnection then
                 redLightConnection:Disconnect()
@@ -948,14 +898,13 @@ MinigameTab:Toggle({
     end
 })
 
-MinigameTab:Section({ Title = "数学对战 (Beta)" })
+MinigameTab:Section({ Title = "数学对战" })
 
 local mathAutoEnabled = false
 local mathConnection = nil
 
 MinigameTab:Toggle({
     Title = "自动秒答",
-    Desc = "【实战未测试】自动读取题目并瞬间提交答案",
     Default = false,
     Callback = function(state)
         mathAutoEnabled = state
@@ -1038,7 +987,7 @@ MinigameTab:Toggle({
     end
 })
 
-MinigameTab:Section({ Title = "扳手腕 (Beta)" })
+MinigameTab:Section({ Title = "扳手腕" })
 
 local armClickEnabled = false
 local armQteEnabled = false
@@ -1046,7 +995,6 @@ local armClickConn, armQteConn = nil, nil
 
 MinigameTab:Toggle({
     Title = "自动点击发力",
-    Desc = "【实战未测试】每秒38次点击，碾压对手",
     Default = false,
     Callback = function(state)
         armClickEnabled = state
@@ -1084,7 +1032,6 @@ MinigameTab:Toggle({
 
 MinigameTab:Toggle({
     Title = "自动QTE",
-    Desc = "【实战未测试】自动完成滑块判定（部分环境可能无效）",
     Default = false,
     Callback = function(state)
         armQteEnabled = state
@@ -1125,14 +1072,54 @@ MinigameTab:Toggle({
     end
 })
 
-MinigameTab:Section({ Title = "管理员玻璃桥 (Beta)" })
+MinigameTab:Section({ Title = "管理员玻璃桥" })
 
 local adminBridgeESP = false
 local adminBridgeConn = nil
+local originalGlassProps = {}
+
+local function restoreGlassProps(part)
+    if not part or not part:IsA("BasePart") or not part.Parent then return end
+    local props = originalGlassProps[part]
+    if props then
+        part.Color = props.Color
+        part.Material = props.Material
+        part.Transparency = props.Transparency
+    else
+        part.Transparency = 1
+    end
+end
+
+local function colorAdminGlass(part)
+    if not part or not part:IsA("BasePart") then return end
+    
+    if not originalGlassProps[part] then
+        originalGlassProps[part] = {
+            Color = part.Color,
+            Material = part.Material,
+            Transparency = part.Transparency
+        }
+    end
+    
+    if part.Transparency >= 0.9 or not part.CanCollide or not part.Parent then
+        restoreGlassProps(part)
+        return
+    end
+    
+    local isFake = part:FindFirstChildOfClass("TouchTransmitter") ~= nil
+    
+    if isFake then
+        part.Color = Color3.fromRGB(255, 0, 0)
+    else
+        part.Color = Color3.fromRGB(0, 255, 0)
+    end
+    
+    part.Material = Enum.Material.Neon
+    part.Transparency = 0.2
+end
 
 MinigameTab:Toggle({
-    Title = "玻璃桥透视",
-    Desc = "【实战未测试】红假绿真，碎块自动消失",
+    Title = "管理员桥上色",
     Default = false,
     Callback = function(state)
         adminBridgeESP = state
@@ -1145,55 +1132,25 @@ MinigameTab:Toggle({
                 pcall(function()
                     local bridge = Workspace:FindFirstChild("GlassBridge")
                     if not bridge then return end
-                    local squid = bridge:FindFirstChild("Squid Game Glass Bridge")
-                    if not squid then return end
-                    local glassFolder = squid:FindFirstChild("glass")
-                    if not glassFolder then return end
                     
-                    for _, pair in ipairs(glassFolder:GetChildren()) do
-                        if pair.Name == "pair" then
-                            local part = pair:FindFirstChild("Part")
-                            if part and part:IsA("BasePart") then
-                                local hl = part:FindFirstChild("AdminBridgeESP_HL")
-                                
-                                if part.Transparency >= 0.9 or not part.CanCollide or not part.Parent then
-                                    if hl then hl:Destroy() end
-                                else
-                                    local isFake = part:FindFirstChildWhichIsA("TouchInterest") ~= nil
-                                    if not hl then
-                                        hl = Instance.new("Highlight")
-                                        hl.Name = "AdminBridgeESP_HL"
-                                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                                        hl.FillTransparency = 0.4
-                                        hl.Parent = part
-                                    end
-                                    
-                                    if isFake then
-                                        hl.FillColor = Color3.fromRGB(255, 0, 0)
-                                        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                                    else
-                                        hl.FillColor = Color3.fromRGB(0, 255, 0)
-                                        hl.OutlineColor = Color3.fromRGB(0, 0, 0)
-                                    end
-                                end
-                            end
+                    for _, v in ipairs(bridge:GetDescendants()) do
+                        if v:IsA("BasePart") and v.Name == "Part" then
+                            colorAdminGlass(v)
                         end
                     end
                 end)
             end)
-            WindUI:Notify({ Title = "管理员透视", Content = "已开启", Duration = 2 })
+            WindUI:Notify({ Title = "管理员桥", Content = "已开启", Duration = 3 })
         else
             if adminBridgeConn then
                 adminBridgeConn:Disconnect()
                 adminBridgeConn = nil
             end
-            pcall(function()
-                for _, v in ipairs(Workspace:GetDescendants()) do
-                    local hl = v:FindFirstChild("AdminBridgeESP_HL")
-                    if hl then hl:Destroy() end
-                end
-            end)
-            WindUI:Notify({ Title = "管理员透视", Content = "已关闭", Duration = 2 })
+            for part, _ in pairs(originalGlassProps) do
+                restoreGlassProps(part)
+            end
+            originalGlassProps = {}
+            WindUI:Notify({ Title = "管理员桥", Content = "已关闭", Duration = 2 })
         end
     end
 })
@@ -1201,7 +1158,7 @@ MinigameTab:Toggle({
 local SettingsTab = Window:Tab({ Title = "设置", Icon = "settings" })
 
 SettingsTab:Slider({
-    Title = "悬浮球大小", Desc = "像素尺寸",
+    Title = "悬浮球大小",
     Icon = "circle",
     Value = { Min = 24, Max = 80, Default = currentBallSize },
     Step = 1,
@@ -1212,7 +1169,7 @@ SettingsTab:Slider({
 })
 
 SettingsTab:Dropdown({
-    Title = "悬浮球形状", Desc = "圆球或方形",
+    Title = "悬浮球形状",
     Icon = "square",
     Values = { "圆形", "圆角方形", "方形" },
     Value = "圆形",
@@ -1242,7 +1199,7 @@ local themePresets = {
 }
 
 SettingsTab:Dropdown({
-    Title = "主题预设", Desc = "选择配色方案",
+    Title = "主题预设",
     Icon = "palette",
     Values = { "🌸 樱花粉紫", "🌊 海洋蓝青", "🍀 森林翠绿", "🌙 魔法深紫", "🔥 火焰红橙", "❄️ 冷淡白灰", "🌌 赛博霓虹", "🍊 日落橙黄", "🍇 葡萄深紫", "💚 薄荷绿" },
     Value = "🌸 樱花粉紫",
@@ -1263,7 +1220,7 @@ SettingsTab:Dropdown({
 SettingsTab:Divider()
 
 SettingsTab:Slider({
-    Title = "元素透明度", Desc = "组件背景透明程度",
+    Title = "元素透明度",
     Icon = "blend",
     Value = { Min = 0, Max = 0.95, Default = 0.88 },
     Step = 0.01,
@@ -1276,7 +1233,7 @@ SettingsTab:Slider({
 })
 
 SettingsTab:Slider({
-    Title = "面板透明度", Desc = "右侧面板背景透明度",
+    Title = "面板透明度",
     Icon = "layers",
     Value = { Min = 0, Max = 0.98, Default = 0.94 },
     Step = 0.01,
@@ -1287,7 +1244,7 @@ SettingsTab:Slider({
 })
 
 SettingsTab:Slider({
-    Title = "整体缩放", Desc = "窗口大小缩放",
+    Title = "整体缩放",
     Icon = "maximize",
     Value = { Min = 0.5, Max = 1.5, Default = 1 },
     Step = 0.05,
@@ -1295,13 +1252,13 @@ SettingsTab:Slider({
 })
 
 SettingsTab:Toggle({
-    Title = "毛玻璃效果", Desc = "开启 3D 模糊背景",
+    Title = "毛玻璃效果",
     Icon = "droplet", Value = true,
     Callback = function(v) pcall(function() WindUI:ToggleAcrylic(v) end) end,
 })
 
 SettingsTab:Toggle({
-    Title = "窗口透明", Desc = "背景本身半透明",
+    Title = "窗口透明",
     Icon = "eye", Value = true,
     Callback = function(v) pcall(function() Window:ToggleTransparency(v) end) end,
 })
@@ -1309,7 +1266,7 @@ SettingsTab:Toggle({
 SettingsTab:Divider()
 
 SettingsTab:Button({
-    Title = "恢复默认设置", Desc = "点击重置所有设置",
+    Title = "恢复默认设置",
     Icon = "rotate-ccw", Variant = "Secondary",
     Callback = function()
         WindUI.Themes["AnimeGlass"] = BuildTheme("#ff6ec7", "#7873f5", "#ff6ec7")
@@ -1328,7 +1285,7 @@ SettingsTab:Button({
 
         pcall(function() WindUI:ToggleAcrylic(true) end)
 
-        WindUI:Notify({ Title = "🔄 重置", Content = "已恢复默认（缩放请到「整体缩放」调）", Duration = 3 })
+        WindUI:Notify({ Title = "🔄 重置", Content = "已恢复默认设置", Duration = 3 })
     end,
 })
 
