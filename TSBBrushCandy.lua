@@ -94,6 +94,8 @@ getgenv().TSB_Cleanup = DestroyAll
 
 lockConnection = RunService.Heartbeat:Connect(function()
     if isPaused then return end
+    if not CONFIG.AutoCandy and not CONFIG.AutoDoor and not CONFIG.AutoPumpkin then return end
+    
     local char = plr.Character
     if char then
         local hrp = char:FindFirstChild("HumanoidRootPart")
@@ -278,14 +280,20 @@ local function BuildUI()
         end)
     end
 
-    createToggle("自动敲门", 85, CONFIG.AutoDoor, function(s) CONFIG.AutoDoor = s end)
-    createToggle("全图捡糖", 120, CONFIG.AutoCandy, function(s) CONFIG.AutoCandy = s end)
-    createToggle("自动打南瓜", 155, CONFIG.AutoPumpkin, function(s) 
+    createToggle("自动敲门", 85, CONFIG.AutoDoor, function(s) 
+        CONFIG.AutoDoor = s 
+        if not s and not CONFIG.AutoCandy and not CONFIG.AutoPumpkin then lockedCFrame = nil end
+    end)
+    createToggle("全图捡糖", 120, CONFIG.AutoCandy, function(s) 
+        CONFIG.AutoCandy = s 
+        if not s and not CONFIG.AutoDoor and not CONFIG.AutoPumpkin then lockedCFrame = nil end
+    end)
+    createToggle("自动打南瓜人", 155, CONFIG.AutoPumpkin, function(s) 
         CONFIG.AutoPumpkin = s 
+        if not s and not CONFIG.AutoCandy and not CONFIG.AutoDoor then lockedCFrame = nil end
         if s then
             isSwitching = false
             lastDeathTime = 0
-            lockedCFrame = nil
         end
     end)
 end
@@ -418,7 +426,6 @@ local function MainLogic()
         local hum = char and char:FindFirstChildOfClass("Humanoid")
 
         if hrp and hum and hum.Health > 0 then
-            -- 优先级 1: 糖果
             local candy = nil
             if CONFIG.AutoCandy then
                 candy = GetGlobalCandyTarget()
@@ -440,24 +447,24 @@ local function MainLogic()
                     IgnoredCandies[candy] = true
                 end
             else
-                -- 优先级 2: 南瓜
                 local target = nil
                 if CONFIG.AutoPumpkin then
                     local live = workspace:FindFirstChild("Live")
                     target = live and live:FindFirstChild("Penyta")
                 end
 
-                if target and target:FindFirstChildOfClass("Humanoid") and target.Humanoid.Health > 0 then
+                if target and target.Parent and target:FindFirstChildOfClass("Humanoid") and target.Humanoid.Health > 0 then
                     if not checkIsPurple() then
-                        if not isSwitching and tick() - lastDeathTime > 5 then
+                        if not isSwitching and tick() - lastDeathTime > 8 then
                             isSwitching = true
                             lastDeathTime = tick()
                             pcall(function() hum.Health = 0 end)
                         end
+                        lockedCFrame = nil
                     else
                         isSwitching = false
                         local npcHRP = target:FindFirstChild("HumanoidRootPart")
-                        if npcHRP then
+                        if npcHRP and npcHRP.Parent then
                             local targetPos = npcHRP.Position - npcHRP.CFrame.LookVector * 2.5
                             lockedCFrame = CFrame.lookAt(targetPos, npcHRP.Position)
                             
@@ -479,7 +486,6 @@ local function MainLogic()
                         end
                     end
                 else
-                    -- 优先级 3: 开门
                     if CONFIG.AutoDoor then
                         local door = getNextDoor()
                         if door then
@@ -540,7 +546,11 @@ local function MainLogic()
                                     task.wait(0.1)
                                 end
                             end
+                        else
+                            lockedCFrame = nil
                         end
+                    else
+                        lockedCFrame = nil
                     end
                 end
             end
@@ -567,8 +577,8 @@ end
 StartScript()
 
 plr.CharacterAdded:Connect(function(char)
+    task.wait(1)
     if CONFIG.AutoPumpkin and not checkIsPurple() then
-        task.wait(1.5)
         switchToPurple()
         task.wait(1)
         if not checkIsPurple() then
